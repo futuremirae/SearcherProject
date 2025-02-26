@@ -11,6 +11,8 @@ final class ImageCell: UICollectionViewCell {
   static let imageCellIdentifier = "ImageCell"
 
   // MARK: - Properties
+  private var task: URLSessionTask?
+
   private let imageView: UIImageView = {
     let view = UIImageView()
     view.backgroundColor = .lightGray
@@ -33,8 +35,9 @@ final class ImageCell: UICollectionViewCell {
   override func prepareForReuse() {
     super.prepareForReuse()
     imageView.image = nil
+    task?.cancel()
   }
-  
+
   func setupView() {
     contentView.addSubview(imageView)
     imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +52,7 @@ final class ImageCell: UICollectionViewCell {
 
   func configure(url: String) {
     guard let url = URL(string: url) else { return }
-    URLSession.shared.dataTask(with: url) { data, response, error in
+    task = URLSession.shared.dataTask(with: url) { data, response, error in
       if let error = error {
         print("이미지 다운 에러 \(error)")
       }
@@ -62,6 +65,8 @@ final class ImageCell: UICollectionViewCell {
         self.imageView.image = image
 
       }
-    }.resume()
+    }
+
+    task?.resume()
   }
 }
