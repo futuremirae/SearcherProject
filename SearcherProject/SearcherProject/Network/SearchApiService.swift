@@ -13,9 +13,12 @@ final class SearchApiService {
   static let shared = SearchApiService()
   private let baseURL = "https://openapi.naver.com/v1/search/image?"
   private let session = URLSession.shared
+  private let clientId = Bundle.main.infoDictionary?["ClientID"] as! String
+  private let clientSecret = Bundle.main.infoDictionary?["ClientSecret"] as! String
 
   private init() {}
 
+  // MARK: - Methods
   func fetchSearhResults(searchTarget: String, page: Int, completion: @escaping (Result<[SearchImage], Error>) -> Void) {
 
     let display = 27
@@ -31,13 +34,11 @@ final class SearchApiService {
 
     session.dataTask(with: request) { data, response, error in
       if error != nil {
-        print(error!)
-        completion(.failure(NetworkError.noData))
+        completion(.failure(NetworkError.invalidURL))
         return
       }
 
       guard let response = response as? HTTPURLResponse, (200..<299) ~= response.statusCode else {
-        print("네트워크 에러")
         completion(.failure(NetworkError.statusCodeError))
         return
       }
@@ -59,52 +60,12 @@ final class SearchApiService {
     }.resume()
   }
 
-//  func fetchSearhResults(searchTarget: String, page: Int, completion: @escaping ([SearchImage]?) -> Void) {
-//
-//    let display = 27
-//    let start = (page - 1) * display + 1
-//
-//    if start > 1000 {
-//      print("start 값이 1000을 초과하여 요청 중단")
-//      completion(nil)
-//      return
-//    }
-//
-//    let request = makeRequest(endpoint: "query=\(searchTarget)&display=\(display)&start=\(start)", method: .get)
-//
-//    session.dataTask(with: request) { data, response, error in
-//      if error != nil {
-//        print(error!)
-//        return
-//      }
-//
-//      guard let response = response as? HTTPURLResponse, (200..<299) ~= response.statusCode else {
-//        print("네트워크 에러")
-//        return
-//      }
-//
-//      guard let safeData = data else {
-//        return
-//      }
-//
-//      if let parseData = self.parseJson(safeData) {
-//        if parseData.count < display {
-//          completion(nil)
-//          return
-//        }
-//        completion(parseData)
-//      } else {
-//        completion(nil)
-//      }
-//
-//    }.resume()
-//  }
-
   func makeRequest(endpoint: String, method: HTTPMethod, body: Data? = nil) -> URLRequest {
     var request = URLRequest(url: URL(string: "\(baseURL)\(endpoint)")!)
+
     request.httpMethod = method.rawValue
-    request.addValue("Co62NpcjrG3s8XuTKQ7L", forHTTPHeaderField: "X-Naver-Client-Id")
-    request.addValue("oOMUQhy9Cw", forHTTPHeaderField: "X-Naver-Client-Secret")
+    request.addValue(clientId, forHTTPHeaderField: "X-Naver-Client-Id")
+    request.addValue(clientSecret, forHTTPHeaderField: "X-Naver-Client-Secret")
 
     request.httpBody = body
     return request
