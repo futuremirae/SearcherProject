@@ -13,13 +13,13 @@ class ImageCellViewModel: ObservableObject {
   private var page = 1
   private var searchTarget = ""
 
-  @Published var searchImage: [SearchImage] = []
-
+//  @Published var searchImage: [SearchImage] = []
+  var searchImage = CurrentValueSubject<[SearchImage], Never>([])
   func fetchSearhResults(searchTarget: String) {
     if self.searchTarget != searchTarget {
       self.searchTarget = searchTarget
       page = 1
-      searchImage = []
+      searchImage.value = []
     }
 
     guard !isLoading else { return }
@@ -30,15 +30,16 @@ class ImageCellViewModel: ObservableObject {
         switch result {
         case .success(let data):
           if self.page == 1 {
-            self.searchImage = data
+            self.searchImage.value = data
           } else {
-            self.searchImage.append(contentsOf: data)
+            self.searchImage.value.append(contentsOf: data)
           }
           self.page += 1
-          self.isLoading = false
+
         case .failure(let error):
-          print("에러 발생 \(error)")
+          self.searchImage.value = []
         }
+        self.isLoading = false
       }
     }
   }

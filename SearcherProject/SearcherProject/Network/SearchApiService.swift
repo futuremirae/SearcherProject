@@ -19,9 +19,8 @@ final class SearchApiService {
   private init() {}
 
   // MARK: - Methods
-  func fetchSearhResults(searchTarget: String, page: Int, completion: @escaping (Result<[SearchImage], Error>) -> Void) {
+  func fetchSearhResults(searchTarget: String, display: Int = 27, page: Int, completion: @escaping (Result<[SearchImage], Error>) -> Void) {
 
-    let display = 27
     let start = (page - 1) * display + 1
 
     if start > 1000 {

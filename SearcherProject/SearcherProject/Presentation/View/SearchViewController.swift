@@ -8,8 +8,7 @@
 import UIKit
 import Combine
 
-private let imageCellIdentifier = "ImageCell"
-final class SearchController: UICollectionViewController {
+final class SearchViewController: UICollectionViewController {
 
   // MARK: - Properties
   private let viewModel = ImageCellViewModel()
@@ -17,7 +16,6 @@ final class SearchController: UICollectionViewController {
   private var searchText = ""
 
   private var searchController = UISearchController(searchResultsController: nil)
-  private var searchResult = [SearchImage]()
 
   // MARK: - LifeCycle
   override func viewDidLoad() {
@@ -31,7 +29,7 @@ final class SearchController: UICollectionViewController {
   func setupView() {
     view.backgroundColor = .white
     navigationItem.title = "검색창"
-    collectionView.register(ImageCell.self, forCellWithReuseIdentifier: imageCellIdentifier)
+    collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell.imageCellIdentifier)
     collectionView.dataSource = self
     collectionView.delegate = self
     collectionView.isPagingEnabled = true
@@ -44,10 +42,9 @@ final class SearchController: UICollectionViewController {
   }
 
   func bind() {
-    viewModel.$searchImage
+    viewModel.searchImage
       .receive(on: DispatchQueue.main)
       .sink {  [ weak self ] searchImageList in
-        self?.searchResult.append(contentsOf: searchImageList)
         self?.collectionView.reloadData()
       }
       .store(in: &cancellables)
@@ -55,21 +52,21 @@ final class SearchController: UICollectionViewController {
 }
 
 // MARK: - UICollectionViewDataSource
-extension SearchController {
+extension SearchViewController {
   override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    return searchResult.count
+    return viewModel.searchImage.value.count
   }
 
   override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: imageCellIdentifier, for: indexPath) as? ImageCell else { return UICollectionViewCell() }
-    cell.configure(url: searchResult[indexPath.row].link)
+    guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ImageCell.imageCellIdentifier, for: indexPath) as? ImageCell else { return UICollectionViewCell() }
+    cell.configure(url: viewModel.searchImage.value[indexPath.row].thumbnail)
 
     return cell
   }
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
-extension SearchController: UICollectionViewDelegateFlowLayout {
+extension SearchViewController: UICollectionViewDelegateFlowLayout {
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
     return 1
   }
@@ -79,27 +76,26 @@ extension SearchController: UICollectionViewDelegateFlowLayout {
   }
 
   func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-    let width = (UIApplication.screenWidth - 2) / 3
+    let width = (collectionView.bounds.width - 2) / 3
     return CGSize(width: width, height: width)
   }
-
 }
 
-extension SearchController: UISearchResultsUpdating {
+extension SearchViewController: UISearchResultsUpdating {
   func updateSearchResults(for searchController: UISearchController) {
     guard let searchText = searchController.searchBar.text else { return }
     self.searchText = searchText
-    self.searchResult = []
     if !searchText.isEmpty {
       viewModel.fetchSearhResults(searchTarget: searchText)
     } else {
+      viewModel.searchImage.value = []
       collectionView.reloadData()
     }
   }
 }
 
 // MARK: - Paging
-extension SearchController {
+extension SearchViewController {
   override func scrollViewDidScroll(_ scrollView: UIScrollView) {
     let offsetY = scrollView.contentOffset.y
     let contentHeight = scrollView.contentSize.height

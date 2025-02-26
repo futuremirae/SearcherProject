@@ -7,8 +7,9 @@
 
 import UIKit
 
-class ImageCell: UICollectionViewCell {
-  
+final class ImageCell: UICollectionViewCell {
+  static let imageCellIdentifier = "ImageCell"
+
   // MARK: - Properties
   private let imageView: UIImageView = {
     let view = UIImageView()
@@ -29,6 +30,11 @@ class ImageCell: UICollectionViewCell {
   }
 
   // MARK: - Methods
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    imageView.image = nil
+  }
+  
   func setupView() {
     contentView.addSubview(imageView)
     imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -49,7 +55,6 @@ class ImageCell: UICollectionViewCell {
       }
 
       guard let data = data, let image = UIImage(data: data) else {
-        print("데이터 없음\(url)")
         return
       }
 
