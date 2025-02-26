@@ -8,12 +8,13 @@
 import UIKit
 
 class ImageCell: UICollectionViewCell {
-
+  
   // MARK: - Properties
   private let imageView: UIImageView = {
     let view = UIImageView()
     view.backgroundColor = .lightGray
     view.contentMode = .scaleAspectFill
+    view.clipsToBounds = true
     return view
   }()
 
@@ -40,5 +41,22 @@ class ImageCell: UICollectionViewCell {
     ])
   }
 
+  func configure(url: String) {
+    guard let url = URL(string: url) else { return }
+    URLSession.shared.dataTask(with: url) { data, response, error in
+      if let error = error {
+        print("이미지 다운 에러 \(error)")
+      }
 
+      guard let data = data, let image = UIImage(data: data) else {
+        print("데이터 없음\(url)")
+        return
+      }
+
+      DispatchQueue.main.async {
+        self.imageView.image = image
+
+      }
+    }.resume()
+  }
 }
