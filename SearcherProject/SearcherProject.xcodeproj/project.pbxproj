@@ -48,11 +48,6 @@
 			path = SearcherProject;
 			sourceTree = "<group>";
 		};
-		BF8F354C2D6E220B009DA343 /* SearcherProjectTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SearcherProjectTests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,7 +79,6 @@
 			isa = PBXGroup;
 			children = (
 				BF8F35322D6E2209009DA343 /* SearcherProject */,
-				BF8F354C2D6E220B009DA343 /* SearcherProjectTests */,
 				BF8F35312D6E2209009DA343 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -136,9 +130,6 @@
 			);
 			dependencies = (
 				BF8F354B2D6E220B009DA343 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				BF8F354C2D6E220B009DA343 /* SearcherProjectTests */,
 			);
 			name = SearcherProjectTests;
 			packageProductDependencies = (
